@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar">
 <head>
@@ -67,8 +68,6 @@
     button.add:hover, button.sms:hover {
       background-color: #005a9c;
     }
-
-    /* ⭐ تنسيق صورة QR ⭐ */
     #qrImage {
       max-width: 250px;
       display: none;
@@ -84,11 +83,21 @@
   <h1>🛒 سلة التسوق</h1>
 
   <section>
-    <ul id="cartItems"></ul>
+    <ul id="cartItems">
+      {% if cart %}
+        {% for item in cart %}
+          <li>
+            <span>{{ item.name }} × {{ item.quantity }}</span>
+            <button class="remove" onclick="removeItem('{{ item.name }}')">🗑 حذف</button>
+          </li>
+        {% endfor %}
+      {% else %}
+        <li>🧺 السلة فارغة</li>
+      {% endif %}
+    </ul>
     <button onclick="showQR()" class="add">📷 عرض كود QR</button>
   </section>
 
-  <!-- ⭐ مكان عرض QR ⭐ -->
   <div>
     <img id="qrImage" src="" alt="كود QR لسلة التسوق">
   </div>
@@ -141,14 +150,6 @@
       }).then(() => loadCart());
     }
 
-    function sendCartSMS() {
-      fetch("/api/send_shopping_sms", { method: "POST" })
-        .then(res => res.json())
-        .then(data => alert(data.message || "✅ تم إرسال السلة إلى جوالك!"))
-        .catch(() => alert("❌ حدث خطأ أثناء الإرسال"));
-    }
-
-    // ⭐ عرض كود QR
     function showQR() {
       fetch("/api/qr_shopping")
         .then(res => {
