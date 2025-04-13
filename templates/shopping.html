@@ -150,20 +150,24 @@
       }).then(() => loadCart());
     }
 
-    function showQR() {
-      fetch("/api/qr_shopping")
-        .then(res => {
-          if (res.status === 200) return res.blob();
-          else throw new Error("❌ لا توجد سلة أو حدث خطأ");
-        })
-        .then(blob => {
-          const url = URL.createObjectURL(blob);
-          const img = document.getElementById("qrImage");
-          img.src = url;
-          img.style.display = "block";
-        })
-        .catch(() => alert("❌ لا توجد عناصر في السلة"));
-    }
+function showQR() {
+  fetch("/api/qr_shopping")
+    .then(async res => {
+      // إذا الرد صورة
+      if (res.ok && res.headers.get("Content-Type") === "image/png") {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const img = document.getElementById("qrImage");
+        img.src = url;
+        img.style.display = "block";
+      } else {
+        // الرد مو صورة (غالباً رسالة خطأ من API)
+        const data = await res.json();
+        alert(data.message || "❌ حدث خطأ أثناء توليد الكود");
+      }
+    })
+    .catch(() => alert("❌ لا توجد عناصر في السلة"));
+}
 
     loadCart();
     setInterval(loadCart, 5000);
