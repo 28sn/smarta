@@ -190,7 +190,9 @@ def recipes():
 
 @app.route("/shopping")
 def shopping():
-    return render_template("shopping.html")
+    cart = read_cart()
+    return render_template("shopping.html", cart=cart)
+
 
 @app.route("/products")
 def get_products():
